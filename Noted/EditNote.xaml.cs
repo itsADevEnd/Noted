@@ -30,7 +30,7 @@ namespace Noted
                 }
                 else
                 {
-                    DisplayAlert("Note Not Found", $"The note titled {noteName} could not be found.", "Return to Notes");
+                    DisplayAlert("Note Not Found", $"Note could not be found.", "Return to Notes");
                     Navigation.PopModalAsync();
                 }
             }
@@ -58,24 +58,34 @@ namespace Noted
                 await DisplayAlert("Note is Empty", "Note cannot be empty. Please type out a note.", "OK");
                 return;
             }
-            else if (itemIndex == -1)
-            {
-                mainPage.Notes.Add(mainPage.TemporaryNoteName);
-                mainPage.NameContentNotes.Add(mainPage.TemporaryNoteName, NoteEditor.Text);
-                mainPage.TemporaryNoteName = string.Empty;
-            }
             else
             {
-                if (mainPage.NameContentNotes.TryGetValue(noteName, out string noteContent))
+                NotedModel note = new NotedModel(mainPage.TemporaryNoteName, NoteEditor.Text);
+
+                if (itemIndex == -1)
                 {
-                    mainPage.NameContentNotes[noteName] = noteContent;
+                    if (await NotedDatabase.SaveNoteAsync(note) > 0)
+                    {
+                        mainPage.NoteNames.Add(mainPage.TemporaryNoteName);
+                        mainPage.NameContentNotes.Add(mainPage.TemporaryNoteName, NoteEditor.Text);
+                        mainPage.TemporaryNoteName = string.Empty;
+                    }
+                    else
+                    {
+                        // Add code here to handle any errors that occur when trying to save a note
+                    }
                 }
                 else
                 {
-                    await DisplayAlert("Note Not Found", $"The note titled {noteName} could not be found. Unable to save.", "Return to Notes");
+                    if (await NotedDatabase.UpdateNoteAsync(note) > 0) mainPage.NameContentNotes[noteName] = NoteEditor.Text;
+                    else
+                    {
+                        await DisplayAlert("Unable to Update Note", "The note could not be updated.", "OK");
+                        return;
+                    }
                 }
+                await Navigation.PopModalAsync();
             }
-            await Navigation.PopModalAsync();
         }
 
         private void EditNote_Clicked(object sender, EventArgs e)
@@ -104,6 +114,19 @@ namespace Noted
             bool returnToNotes = await DisplayAlert("Return to Notes", "Are you sure you want to return to your notes? All unsaved changes will be lost.", "Yes", "No");
 
             if (returnToNotes) await Navigation.PopModalAsync();
+        }
+
+        private async void DeleteNote_Clicked(object sender, EventArgs e)
+        {
+            if (await DisplayAlert("Delete Note", "Are you sure you want to delete this note? This action cannot be reversed.", "Yes", "No"))
+            {
+                if (await NotedDatabase.DeleteNoteAsync(new NotedModel(noteName, NoteEditor.Text)) > 0)
+                {
+                    mainPage.NameContentNotes.Remove(noteName);
+                    mainPage.NoteNames.Remove(noteName);
+                    await Navigation.PopModalAsync();
+                }
+            }
         }
     }
 }

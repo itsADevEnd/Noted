@@ -10,6 +10,7 @@
             <StackLayout Orientation="Vertical" VerticalOptions="EndAndExpand">
                 <Button x:Name="EditNoteButton" Text="Edit Note" Padding="10" Clicked="EditNote_Clicked"/>
                 <Button Text="Save Note" Padding="10" Clicked="SaveNote_Clicked"/>
+                <Button Text="Delete Note" Padding="10" Clicked="DeleteNote_Clicked"/>
                 <Button Text="Return to Notes" Clicked="ReturnToNotes_Clicked"/>
             </StackLayout>
         </StackLayout>
