@@ -6,7 +6,7 @@
         <StackLayout Orientation="Vertical">
             <Label Text="Edit Your Note"
                 HorizontalOptions="CenterAndExpand" Margin="20" FontSize="Medium"/>
-            <Editor x:Name="NoteEditor" HorizontalOptions="FillAndExpand" AutoSize="TextChanges" Margin="10"/>
+            <Editor x:Name="NoteEditor" HorizontalOptions="FillAndExpand" AutoSize="TextChanges" Margin="10" TextColor="White"/>
             <StackLayout Orientation="Vertical" VerticalOptions="EndAndExpand">
                 <Button x:Name="EditNoteButton" Text="Edit Note" Padding="10" Clicked="EditNote_Clicked"/>
                 <Button Text="Save Note" Padding="10" Clicked="SaveNote_Clicked"/>

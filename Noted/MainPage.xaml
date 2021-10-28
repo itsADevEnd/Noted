@@ -4,15 +4,16 @@
              x:Class="Noted.MainPage"
              BackgroundColor="white">
 
-    <StackLayout Orientation="Vertical">
-        <ScrollView x:Name="NotesScrollView">
-            <ListView x:Name="NotesListView" ItemTapped="NotesListView_ItemTapped">
-            </ListView>
-        </ScrollView>
-        <AbsoluteLayout>
+    <StackLayout x:Name="NotesStackLayout" VerticalOptions="Fill">
+        <TableView>
+            <TableRoot>
+                <TableSection x:Name="TextCellContainer" x:FieldModifier="public">
+                </TableSection>
+            </TableRoot>
+        </TableView>
+        <AbsoluteLayout VerticalOptions="End">
             <ImageButton Source="plus_icon.png" Clicked="AddNote_Clicked" Margin="10" AbsoluteLayout.LayoutFlags="PositionProportional"  
             AbsoluteLayout.LayoutBounds=".50,0,80,80" BackgroundColor="Transparent"/>
         </AbsoluteLayout>
     </StackLayout>
-
 </ContentPage>

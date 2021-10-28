@@ -13,15 +13,12 @@ namespace Noted
     public partial class MainPage : ContentPage
     {
         public static MainPage AppMainPage { get; set; }
-        public ObservableCollection<string> NoteNames { get; set; } = new ObservableCollection<string>();
         public Dictionary<string, string> NameContentNotes = new Dictionary<string, string>();
         public string Note { get; set; }
-        public string TemporaryNoteName { get; set; }
 
         public MainPage()
         {
             InitializeComponent();
-            NotesListView.ItemsSource = NoteNames;
             NotedDatabase.InitializeConnection(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Noted.db3"));
             GetNotes();
         }
@@ -62,25 +59,35 @@ namespace Noted
             } while (noteNameIsEmpty == true);
 
 
-            TemporaryNoteName = result;
-            Page editNotePage = new EditNote(string.Empty);
+            EditNote editNotePage = new EditNote(result);
             await Navigation.PushModalAsync(editNotePage);
         }
 
-        private async void NotesListView_ItemTapped(object sender, ItemTappedEventArgs e)
+        public void NoteCell_Tapped(object sender, EventArgs e)
         {
-            await Navigation.PushModalAsync(new EditNote((sender as ListView).SelectedItem.ToString(), e.ItemIndex));
-            NotesListView.SelectedItem = null;
+            Navigation.PushModalAsync(new EditNote(sender as TextCell));
         }
 
         private async void GetNotes()
         {
             List<NotedModel> notes = await NotedDatabase.GetNotesAsync();
-            
-            foreach (NotedModel note in notes)
+
+            if (notes.Count > 0)
             {
-                NoteNames.Add(note.NoteName);
-                NameContentNotes.Add(note.NoteName, note.Note);
+                foreach (NotedModel note in notes)
+                {
+                    TextCell noteTextCell = new TextCell()
+                    {
+                        Text = note.NoteName,
+                        Detail = note.Note,
+                        TextColor = Color.FromHex("#2196F3"),
+                        DetailColor = Color.FromHex("#2196F3"),
+                    };
+                    noteTextCell.Tapped += NoteCell_Tapped;
+
+                    AppMainPage.TextCellContainer.Add(noteTextCell);
+                    NameContentNotes.Add(note.NoteName, note.Note);
+                }
             }
         }
     }

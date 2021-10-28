@@ -9,7 +9,6 @@ namespace Noted
         public App()
         {
             InitializeComponent();
-
             MainPage = Noted.MainPage.AppMainPage = new MainPage();
         }
 

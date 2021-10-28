@@ -17,41 +17,42 @@ namespace Noted
         {
             if (Database == null)
             {
-                Database = new SQLiteAsyncConnection(dbPath);
+                SQLiteOpenFlags sQLiteOpenFlags = SQLiteOpenFlags.Create | SQLiteOpenFlags.FullMutex | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.SharedCache;
+                Database = new SQLiteAsyncConnection(dbPath, sQLiteOpenFlags, true);
                 Database.CreateTableAsync<NotedModel>().Wait();
             }
         }
 
-        public static Task<List<NotedModel>> GetNotesAsync()
+        public static async Task<List<NotedModel>> GetNotesAsync()
         {
             // Get all notes.
-            return Database.Table<NotedModel>().ToListAsync();
+            return await Database.Table<NotedModel>().ToListAsync();
         }
 
-        public static Task<NotedModel> GetNoteAsync(string note)
+        public static async Task<NotedModel> GetNoteAsync(string note)
         {
             // Get a specific note.
-            return Database.Table<NotedModel>()
+            return await Database.Table<NotedModel>()
                             .Where(noted => noted.NoteName == note)
                             .FirstOrDefaultAsync();
         }
 
-        public static Task<int> SaveNoteAsync(NotedModel note)
+        public static async Task<int> SaveNoteAsync(NotedModel note)
         {
             // Update an existing note.
-            return Database.InsertAsync(note);
+            return await Database.InsertAsync(note);
         }
 
-        public static Task<int> DeleteNoteAsync(NotedModel note)
+        public static async Task<int> DeleteNoteAsync(NotedModel note)
         {
             // Delete a note.
-            return Database.DeleteAsync(note);
+            return await Database.DeleteAsync(note);
         }
 
-        public static Task<int> UpdateNoteAsync(NotedModel note)
+        public static async Task<int> UpdateNoteAsync(NotedModel note)
         {
             // Update a note.
-            return Database.UpdateAsync(note);
+            return await Database.UpdateAsync(note);
         }
     }
 }

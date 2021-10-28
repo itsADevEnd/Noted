@@ -13,32 +13,52 @@ namespace Noted
     public partial class EditNote : ContentPage
     {
         private MainPage mainPage = MainPage.AppMainPage;
-        private int itemIndex = -1;
         private string temporaryNoteContent = "";
         private string noteName = "";
+        private TextCell noteTextCell;
+        private bool isNewNote = false;
 
-        public EditNote(object note, int noteItemIndex = -1)
+        /// <summary>
+        /// To be used when an existing note is being opened.
+        /// </summary>
+        /// <param name="textCell">The TextCell that contains the Text and Detail content.</param>
+        /// <param name="noteItemIndex"></param>
+        public EditNote(TextCell textCell)
         {
             InitializeComponent();
-            if (!string.IsNullOrEmpty(note.ToString()))
+            noteTextCell = textCell;
+            noteName = textCell.Text;
+            PopulateNoteEditor();
+            FocusOnTextEditor();
+        }
+
+        public EditNote(string nameOfNote)
+        {
+            InitializeComponent();
+            noteName = nameOfNote;
+            isNewNote = true;
+            FocusOnTextEditor();
+        }
+
+        /// <summary>
+        /// Sets the Text property of the note editor with the content of the note if a record with the note's name can be found.
+        /// </summary>
+        private void PopulateNoteEditor()
+        {
+            if (mainPage.NameContentNotes.TryGetValue(noteTextCell.Text, out string noteContent))
             {
-                if (mainPage.NameContentNotes.TryGetValue(note.ToString(), out string noteContent))
-                {
-                    noteName = note.ToString();
-                    NoteEditor.Text = noteContent;
-                    NoteEditor.IsEnabled = false;
-                }
-                else
-                {
-                    DisplayAlert("Note Not Found", $"Note could not be found.", "Return to Notes");
-                    Navigation.PopModalAsync();
-                }
+                NoteEditor.Text = noteContent;
+                NoteEditor.IsEnabled = false;
             }
             else
             {
-                EditNoteButton.IsVisible = false;
+                DisplayAlert("Note Not Found", $"Note could not be found.", "Return to Notes");
+                Navigation.PopModalAsync();
             }
-            itemIndex = noteItemIndex;
+        }
+
+        private void FocusOnTextEditor()
+        {
             System.Timers.Timer timer = new System.Timers.Timer();
             timer.Interval = 500;
             timer.Elapsed += Timer_Elapsed;
@@ -60,19 +80,26 @@ namespace Noted
             }
             else
             {
-                NotedModel note = new NotedModel(mainPage.TemporaryNoteName, NoteEditor.Text);
+                NotedModel note = new NotedModel(noteName, NoteEditor.Text);
 
-                if (itemIndex == -1)
+                if (isNewNote)
                 {
                     if (await NotedDatabase.SaveNoteAsync(note) > 0)
                     {
-                        mainPage.NoteNames.Add(mainPage.TemporaryNoteName);
-                        mainPage.NameContentNotes.Add(mainPage.TemporaryNoteName, NoteEditor.Text);
-                        mainPage.TemporaryNoteName = string.Empty;
+                        mainPage.NameContentNotes.Add(noteName, NoteEditor.Text);
+                        TextCell noteTextCell = new TextCell()
+                        {
+                            Text = noteName,
+                            Detail = NoteEditor.Text,
+                            TextColor = Color.FromHex("#2196F3"),
+                            DetailColor = Color.FromHex("#2196F3"),
+                        };
+                        noteTextCell.Tapped += mainPage.NoteCell_Tapped;
+                        MainPage.AppMainPage.TextCellContainer.Add(noteTextCell);
                     }
                     else
                     {
-                        // Add code here to handle any errors that occur when trying to save a note
+                        // Add code here to handle any errors that occur when trying to save a note.
                     }
                 }
                 else
@@ -84,6 +111,9 @@ namespace Noted
                         return;
                     }
                 }
+
+                noteName = string.Empty;
+                isNewNote = false;
                 await Navigation.PopModalAsync();
             }
         }
@@ -123,7 +153,8 @@ namespace Noted
                 if (await NotedDatabase.DeleteNoteAsync(new NotedModel(noteName, NoteEditor.Text)) > 0)
                 {
                     mainPage.NameContentNotes.Remove(noteName);
-                    mainPage.NoteNames.Remove(noteName);
+                    //mainPage.NoteNames.Remove(noteTextCell);
+                    mainPage.TextCellContainer.Remove(noteTextCell);
                     await Navigation.PopModalAsync();
                 }
             }
