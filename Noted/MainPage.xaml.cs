@@ -12,9 +12,14 @@ namespace Noted
 {
     public partial class MainPage : ContentPage
     {
+        /// <summary>
+        /// The singleton used to interact with and manipulate this page's content. This is also the property that is being set as the root page of the application.
+        /// </summary>
         public static MainPage AppMainPage { get; set; }
+        /// <summary>
+        /// Used to store the note names and their content during runtime to keep track of the data.
+        /// </summary>
         public Dictionary<string, string> NameContentNotes = new Dictionary<string, string>();
-        public string Note { get; set; }
 
         public MainPage()
         {

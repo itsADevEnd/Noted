@@ -12,6 +12,9 @@ namespace Noted
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class EditNote : ContentPage
     {
+        /// <summary>
+        /// A private field that is used to access the static AppMainPage property of MainPage to interact with and manipulate the page's content.
+        /// </summary>
         private MainPage mainPage = MainPage.AppMainPage;
         private string temporaryNoteContent = "";
         private string noteName = "";
@@ -22,7 +25,6 @@ namespace Noted
         /// To be used when an existing note is being opened.
         /// </summary>
         /// <param name="textCell">The TextCell that contains the Text and Detail content.</param>
-        /// <param name="noteItemIndex"></param>
         public EditNote(TextCell textCell)
         {
             InitializeComponent();
@@ -32,6 +34,10 @@ namespace Noted
             FocusOnTextEditor();
         }
 
+        /// <summary>
+        /// To be used when a new note is being created.
+        /// </summary>
+        /// <param name="nameOfNote">The name of the note.</param>
         public EditNote(string nameOfNote)
         {
             InitializeComponent();
@@ -92,7 +98,7 @@ namespace Noted
                             Text = noteName,
                             Detail = NoteEditor.Text,
                             TextColor = Color.FromHex("#2196F3"),
-                            DetailColor = Color.FromHex("#2196F3"),
+                            DetailColor = Color.FromHex("#2196F3")
                         };
                         noteTextCell.Tapped += mainPage.NoteCell_Tapped;
                         MainPage.AppMainPage.TextCellContainer.Add(noteTextCell);
